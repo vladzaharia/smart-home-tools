@@ -1,0 +1,30 @@
+{
+  "title": {
+    "en": "Intelligently dim lights"
+  },
+  "titleFormatted": {
+    "en": "Intelligently dim lights in [[zone]] to [[level]]"
+  },
+  "hint": {
+    "en": "Dims lights only if the current dim level is lower than the requested one."
+  },
+  "args": [
+    {
+      "type": "range",
+      "name": "level",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "label": "%",
+      "labelMultiplier": 100,
+      "labelDecimals": 0
+    },
+    {
+      "type": "autocomplete",
+			"name": "zone",
+			"placeholder": {
+				"en": "zone"
+			}
+    }
+  ]
+}

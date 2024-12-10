@@ -1,6 +1,9 @@
 {
   "title": {
-    "en": "Determine luminence value for {{zoneType}}"
+    "en": "Determine luminence value"
+  },
+  "titleFormatted": {
+    "en": "Determine luminence value for [[zoneType]]"
   },
   "args": [
     {

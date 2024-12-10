@@ -1,6 +1,7 @@
 {
   "extends": "athom/homey-app",
   "rules": {
-    "padded-blocks": "off"
+    "padded-blocks": "off",
+    "import/prefer-default-export": "off"
   }
 }
