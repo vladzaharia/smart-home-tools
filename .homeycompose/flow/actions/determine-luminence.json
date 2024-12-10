@@ -1,0 +1,40 @@
+{
+  "title": {
+    "en": "Determine luminence value for {{zoneType}}"
+  },
+  "args": [
+    {
+      "type": "dropdown",
+      "name": "zoneType",
+      "values": [
+        {
+          "id": "room",
+          "label": {
+            "en": "Room"
+          }
+        },
+        {
+          "id": "hallway",
+          "label": {
+            "en": "Hallway"
+          }
+        }
+      ]
+    }
+  ],
+
+  "tokens": [
+    {
+      "name": "luminence",
+      "type": "number",
+      "title": { "en": "Luminence value" },
+      "example": 0.5
+    },
+    {
+      "name": "luminence_dimmed",
+      "type": "number",
+      "title": { "en": "Dimmed luminence value" },
+      "example": 0.1
+    }
+  ]
+}
