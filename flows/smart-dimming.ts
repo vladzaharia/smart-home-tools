@@ -3,10 +3,12 @@
 import { ISmartHomeTools } from '../types/app';
 import { DetermineLuminence } from './determine-luminence';
 import { ZoneFlow, ZoneFlowParams } from '../utils/flows/zone';
+import { LoggedFlowParams } from '../utils/flows/logged';
 
 export type FlowParams = {
   level?: number | 'standard' | 'dimmed';
-} & ZoneFlowParams;
+} & ZoneFlowParams &
+  LoggedFlowParams;
 
 export class SmartDimming extends ZoneFlow<FlowParams, void> {
   constructor(app: ISmartHomeTools) {
@@ -15,32 +17,34 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
 
   override async _run(args: FlowParams): Promise<void> {
     await super._run(args);
-    const loggingProps: Record<string, unknown> = {
+    const loggedProps: Record<string, unknown> = {
       zone: args.zone.name,
-      dimLevel: args.level,
+      dimLevel: args.level || 'default',
     };
 
     let { level } = args;
 
-    this.info('dimming lights in {zone} to {dimLevel}', loggingProps);
+    this.debug('Dimming lights in {zone} to {dimLevel}', loggedProps);
 
-    if (!level || typeof level !== 'number') {
+    if (typeof level !== 'number') {
       this.debug(
-        'determining appropriate dim level for {dimLevel}',
-        loggingProps,
+        'Determining appropriate dim level for {dimLevel}',
+        loggedProps,
       );
 
       const determineLuminence = new DetermineLuminence(this._app);
       const luminences = await determineLuminence._run({
         zoneType: args.zone.zoneType,
-        loggingProps,
+        loggedProps,
+        correlationId: this._loggedProps.runId as string,
+        caller: 'smart-dimming',
       });
       level =
         level === 'dimmed' ? luminences.luminence_dimmed : luminences.luminence;
     }
-    loggingProps.dimLevel = level;
+    loggedProps.dimLevel = level;
 
-    this.debug('dimming lights to {dimLevel}', loggingProps);
+    this.debug('Dimming lights to {dimLevel}', loggedProps);
 
     // get lights in zone
     const devices = this._app.zones
@@ -52,20 +56,22 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
           device.isAutomatic
         );
       });
+    loggedProps.numLights = devices.length;
 
-    this.debug('found {numLights} lights: {lights}', {
-      ...loggingProps,
-      numLights: devices.length,
+    this.debug('Found {numLights} lights: {lights}', {
+      ...loggedProps,
       lights: devices.map((device) => device.name),
     });
 
+    loggedProps.numDimmed = 0;
+    loggedProps.numSkipped = 0;
     for (const { id, name } of devices) {
       const deviceLoggingProps: Record<string, unknown> = {
-        ...loggingProps,
+        ...loggedProps,
         light: name,
         id,
       };
-      this.info('dimming {light}', deviceLoggingProps);
+      this.debug('Dimming {light}', deviceLoggingProps);
 
       // get current dim level
       const currentDimLevel = await this._app.api.devices.getCapabilityValue({
@@ -73,7 +79,7 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
         capabilityId: 'dim',
       });
       deviceLoggingProps.currentDimLevel = currentDimLevel;
-      this.debug('current dim level is {currentDimLevel}', deviceLoggingProps);
+      this.debug('Current dim level is {currentDimLevel}', deviceLoggingProps);
 
       const isOn = await this._app.api.devices.getCapabilityValue({
         deviceId: id,
@@ -83,19 +89,26 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
 
       // check if current dim level is lower than requested one or light is off
       if (currentDimLevel < level || !isOn) {
-        this.debug('dimming to {dimLevel}', deviceLoggingProps);
+        this.debug('Dimming to {dimLevel}', deviceLoggingProps);
         // set dim level
         await this._app.api.devices.setCapabilityValue({
           deviceId: id,
           capabilityId: 'dim',
           value: level,
         });
+        (loggedProps.numDimmed as number) += 1;
       } else {
         this.debug(
-          'dim level ({currentDimLevel}) is already higher than requested one ({dimLevel}), skipping',
+          'Dim level ({currentDimLevel}) is already higher than requested one ({dimLevel}), skipping',
           deviceLoggingProps,
         );
+        (loggedProps.numSkipped as number) += 1;
       }
     }
+
+    this.info(
+      'Finished dimming {numDimmed} lights in {zone} to {dimLevel}',
+      loggedProps,
+    );
   }
 }

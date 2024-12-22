@@ -7,7 +7,7 @@ import HomeyInstance from 'homey';
 import TransportStream from 'winston-transport';
 import { SeqLoggerConfig } from 'seq-logging';
 import { consoleFormat } from 'winston-console-format';
-import { Source } from '../../types/app';
+import { Source } from '../types/app';
 
 export type LoggerOptions = {
   homey: Homey;
@@ -33,7 +33,7 @@ export class Logger {
             showMeta: true,
             metaStrip: [
               'timestamp',
-              // 'source',
+              'source',
               'appVersion',
               'platformVersion',
               'version',
@@ -127,16 +127,16 @@ export class Logger {
   }
 
   /**
-   * Creates a child logger with the specified source and properties.
+   * Creates a child logger with the specified resource and properties.
    *
-   * @param source The source of the log message.
+   * @param resource The resource of the log message.
    * @param properties Additional properties to include in the log message.
-   * @returns A child logger with the specified source and properties.
+   * @returns A child logger with the specified resource and properties.
    */
-  public child(source: Source, properties?: Record<string, unknown>): winston.Logger {
+  public child(resource: Source, properties?: Record<string, unknown>): winston.Logger {
     return this.logger.child({
       ...properties,
-      source,
+      resource,
     });
   }
 
@@ -151,7 +151,7 @@ export class Logger {
    * @see `error()` to log errors
    */
   public log(level: 'debug' | 'info' | 'warn' | 'error', message: string, properties?: Record<string, unknown>, logger = this.logger): void {
-    logger[level](message, properties || {});
+    logger[level](message, { ...properties, source: 'winston' });
   }
 
   /**

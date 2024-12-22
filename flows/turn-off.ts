@@ -1,6 +1,7 @@
 'use strict';
 
 import { ISmartHomeTools } from '../types/app';
+import { LoggedFlowParams } from '../utils/flows/logged';
 import { ZoneFlow, ZoneFlowParams } from '../utils/flows/zone';
 
 export async function TurnOffLight(
@@ -8,11 +9,11 @@ export async function TurnOffLight(
   deviceId: string,
   deviceName: string,
   capabilities: string[],
-  loggingProps: Record<string, unknown>,
+  loggedProps: Record<string, unknown>,
   log: (message: string, properties?: Record<string, unknown>) => void,
 ) {
   const deviceLoggingProps: Record<string, unknown> = {
-    ...loggingProps,
+    ...loggedProps,
     light: deviceName,
     id: deviceId,
   };
@@ -34,7 +35,7 @@ export async function TurnOffLight(
   });
 }
 
-export type FlowParams = ZoneFlowParams;
+export type FlowParams = ZoneFlowParams & LoggedFlowParams;
 
 export class TurnOff extends ZoneFlow<FlowParams, void> {
   constructor(app: ISmartHomeTools) {
@@ -44,11 +45,11 @@ export class TurnOff extends ZoneFlow<FlowParams, void> {
   override async _run(args: FlowParams): Promise<void> {
     await super._run(args);
 
-    const loggingProps: Record<string, unknown> = {
+    const loggedProps: Record<string, unknown> = {
       zone: args.zone.name,
     };
 
-    this.debug('turning off lights in {zone}', loggingProps);
+    this.debug('Turning off lights in {zone}', loggedProps);
 
     // get lights in zone
     const devices = this._app.zones
@@ -60,22 +61,30 @@ export class TurnOff extends ZoneFlow<FlowParams, void> {
           device.isAutomatic
         );
       });
+    loggedProps.numLights = devices.length;
 
-    this.debug('found {numLights} lights: {lights}', {
-      ...loggingProps,
-      numLights: devices.length,
+    this.debug('Found {numLights} lights: {lights}', {
+      ...loggedProps,
       lights: devices.map((device) => device.name),
     });
 
     for (const { id, name, capabilities } of devices) {
+      this.debug('Turning off {light}', {
+        ...loggedProps,
+        light: name,
+        id,
+      });
+
       await TurnOffLight(
         this._app,
         id,
         name,
         capabilities,
-        loggingProps,
+        loggedProps,
         this.debug,
       );
     }
+
+    this.info('Finished turning off {numLights} lights in {zone}', loggedProps);
   }
 }

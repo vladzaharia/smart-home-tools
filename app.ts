@@ -13,39 +13,65 @@ import { TurnOn } from './flows/turn-on';
 import { Normalize } from './flows/normalize';
 import { ZoneDB } from './utils/zones';
 import { ISmartHomeTools, Source } from './types/app';
-import { Logger } from './utils/observability/log';
+import { Logger } from './utils/log';
 import { IFlow } from './types/flow';
 
-module.exports = class SmartHomeTools extends Homey.App implements ISmartHomeTools {
+module.exports = class SmartHomeTools
+  extends Homey.App
+  implements ISmartHomeTools
+{
   public logger!: Logger;
   public api!: HomeyAPI;
   public zones!: ZoneDB;
   private _flows: IFlow<unknown, unknown>[] = [];
 
   /**
-   * onInit is called when the app is initialized.
+   * onInit is called when the init is initialized.
    */
   async onInit() {
     this.logger = Logger.initialize(this.homey);
-    this.log('app', 'Initializing SmartHomeTools', { manifest: this.manifest });
+    this.log('initialization', 'Initializing SmartHomeTools', {
+      manifest: this.manifest,
+    });
 
-    // Create a HomeyAPI instance. Ensure your app has the `homey:manager:api` permission.
-    this.log('app', 'Initializing HomeyAPI', {}, 'debug');
+    // Create a HomeyAPI instance. Ensure your init has the `homey:manager:api` permission.
+    this.log('initialization', 'Initializing HomeyAPI', {}, 'debug');
     this.api = await HomeyAPI.createAppAPI({
       homey: this.homey,
     });
-    this.log('app', 'Finished initializing HomeyAPI', {}, 'debug');
+    this.log(
+      'initialization',
+      'Finished initializing HomeyAPI',
+      { api: this.api },
+      'debug',
+    );
 
     // Create a ZoneDB instance
-    this.log('app', 'Initializing ZoneDB', {}, 'debug');
+    this.log('initialization', 'Initializing ZoneDB', {}, 'debug');
     this.zones = new ZoneDB(this);
-    this.log('app', 'Finished initializing ZoneDB', {}, 'debug');
+    await this.zones._refresh(this.api);
+    this.log(
+      'initialization',
+      'Finished initializing ZoneDB with {numZones} zones and {numDevices} devices',
+      {
+        zones: this.zones.getZones().map((zone) => zone.name),
+        devices: this.zones.getDevices().map((device) => device.name),
+        numZones: this.zones.getZones().length,
+        numDevices: this.zones.getDevices().length,
+      },
+      'debug',
+    );
 
     // Register flows
     if (this._flows.length > 0) {
-      this.log('app', 'Flows are already initialized, skipping initialization', {}, 'warn');
+      this.log(
+        'initialization',
+        'Flows are already initialized, skipping initialization',
+        { flows: this._flows.map((f) => f._flowName) },
+        'warn',
+      );
     } else {
-      this.log('app', 'Initializing flows', {}, 'debug');
+      this.log('initialization', 'Initializing flows', {}, 'debug');
       const determineLuminence = new DetermineLuminence(this);
       await determineLuminence.initialize();
       this._flows.push(determineLuminence);
@@ -77,17 +103,27 @@ module.exports = class SmartHomeTools extends Homey.App implements ISmartHomeToo
       const normalize = new Normalize(this);
       await normalize.initialize();
       this._flows.push(normalize);
-      this.log('app', 'Finished initializing flows!', {}, 'debug');
+      this.log(
+        'initialization',
+        'Finished initializing flows!',
+        { flows: this._flows.map((f) => f._flowName) },
+        'debug',
+      );
     }
 
     // Log success
-    this.log('app', 'SmartHomeTools has been initialized!');
+    this.log('initialization', 'SmartHomeTools has been initialized!');
   }
 
-  log(source: Source, message: string, properties?: Record<string, unknown>, level: 'debug' | 'info' | 'warn' | 'error' = 'info') {
+  log(
+    resource: Source,
+    message: string,
+    properties?: Record<string, unknown>,
+    level: 'debug' | 'info' | 'warn' | 'error' = 'info',
+  ) {
     this.logger.log(level, message, {
       ...properties,
-      source,
+      resource,
     });
   }
 };

@@ -2,12 +2,12 @@
 
 import { getTimes } from 'suncalc';
 import { ISmartHomeTools } from '../types/app';
-import { LoggedFlow } from '../utils/flows/logged';
+import { LoggedFlow, LoggedFlowParams } from '../utils/flows/logged';
 
 export type FlowParams = {
   zoneType: 'room' | 'hallway';
-  loggingProps?: Record<string, unknown>;
-};
+  loggedProps?: Record<string, unknown>;
+} & LoggedFlowParams;
 
 export type FlowResult = {
   luminence: number;
@@ -36,23 +36,23 @@ export class DetermineLuminence extends LoggedFlow<FlowParams, FlowResult> {
 
   override async _run(args: FlowParams) {
     await super._run(args);
-    const loggingProps: Record<string, unknown> = {
+    const loggedProps: Record<string, unknown> = {
       zoneType: args['zoneType'],
       config: {
         tz: this._tz,
         lat: this._lat,
         lon: this._lon,
       },
-      ...args['loggingProps'],
+      ...args['loggedProps'],
     };
 
-    this.info('Determining luminence for zone type {zoneType}', loggingProps);
+    this.debug('Determining luminence for zone type {zoneType}', loggedProps);
 
     // Get current hour from local time
     const currHour = this._getHour(undefined);
-    loggingProps.hour = currHour;
+    loggedProps.hour = currHour;
 
-    this.debug('Current hour is {hour}', loggingProps);
+    this.debug('Current hour is {hour}', loggedProps);
 
     // Get sunrise and sunset times
     const times = getTimes(new Date(), this._lat, this._lon);
@@ -60,25 +60,25 @@ export class DetermineLuminence extends LoggedFlow<FlowParams, FlowResult> {
       sunrise: this._getHour(times.sunrise) - 1,
       sunset: this._getHour(times.sunset) + 1,
     };
-    loggingProps.sunrise = sunrise;
-    loggingProps.sunset = sunset;
+    loggedProps.sunrise = sunrise;
+    loggedProps.sunset = sunset;
 
-    this.debug('Sunrise is {sunrise} and sunset is {sunset}', loggingProps);
+    this.debug('Sunrise is {sunrise} and sunset is {sunset}', loggedProps);
 
     let result = 0;
 
     // Determine which mapping to use
     const arg = args['zoneType'];
     const mapping = MAPPINGS[arg] || MAPPINGS['default'];
-    loggingProps.mapping = mapping;
+    loggedProps.mapping = mapping;
 
-    this.debug('Using mapping {mapping}', loggingProps);
+    this.debug('Using mapping {mapping}', loggedProps);
 
     // Determine the dim factor
     const dimFactor = result <= 50 ? 1.5 : 2;
-    loggingProps.dimFactor = dimFactor;
+    loggedProps.dimFactor = dimFactor;
 
-    this.debug('Using dim factor {dimFactor}', loggingProps);
+    this.debug('Using dim factor {dimFactor}', loggedProps);
 
     if (currHour > sunrise && currHour < sunrise + 2) {
       // First two hours of sunrise
@@ -103,16 +103,17 @@ export class DetermineLuminence extends LoggedFlow<FlowParams, FlowResult> {
       result = mapping[0];
     }
 
-    this.info('Luminence determined', {
-      ...loggingProps,
-      luminence: result / 100,
-      luminence_dimmed: result / dimFactor / 100,
+    const finalResult = {
+      luminence: Number.parseFloat((result / 100).toFixed(2)),
+      luminence_dimmed: Number.parseFloat((result / dimFactor / 100).toFixed(2)),
+    };
+
+    this.info('Luminence for {zoneType} determined as {luminence}', {
+      ...loggedProps,
+      ...finalResult,
     });
 
-    return {
-      luminence: result / 100,
-      luminence_dimmed: result / dimFactor / 100,
-    };
+    return finalResult;
   }
 
   private _getHour(date: Date = new Date()) {

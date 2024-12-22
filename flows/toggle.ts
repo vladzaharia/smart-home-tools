@@ -1,9 +1,10 @@
 'use strict';
 
 import { ISmartHomeTools } from '../types/app';
+import { LoggedFlowParams } from '../utils/flows/logged';
 import { ZoneFlow, ZoneFlowParams } from '../utils/flows/zone';
 
-export type FlowParams = ZoneFlowParams;
+export type FlowParams = ZoneFlowParams & LoggedFlowParams;
 
 export class Toggle extends ZoneFlow<FlowParams, void> {
   constructor(app: ISmartHomeTools) {
@@ -12,11 +13,11 @@ export class Toggle extends ZoneFlow<FlowParams, void> {
 
   override async _run(args: FlowParams): Promise<void> {
     await super._run(args);
-    const loggingProps: Record<string, unknown> = {
+    const loggedProps: Record<string, unknown> = {
       zone: args.zone.name,
     };
 
-    this.debug('toggling lights in {zone}', loggingProps);
+    this.debug('Toggling lights in {zone}', loggedProps);
 
     // get lights in zone
     const devices = this._app.zones.getDevicesByZone(args.zone.id).filter((device) => {
@@ -26,10 +27,10 @@ export class Toggle extends ZoneFlow<FlowParams, void> {
         && device.isAutomatic
       );
     });
+    loggedProps.numLights = devices.length;
 
-    this.debug('found {numLights} lights: {lights}', {
-      ...loggingProps,
-      numLights: devices.length,
+    this.debug('Found {numLights} lights: {lights}', {
+      ...loggedProps,
       lights: devices.map((device) => device.name),
     });
 
@@ -40,8 +41,8 @@ export class Toggle extends ZoneFlow<FlowParams, void> {
         capabilityId: 'onoff',
       });
 
-      this.debug('toggling {light} from {currVal} to {newVal}', {
-        ...loggingProps,
+      this.debug('Toggling {light} from {currVal} to {newVal}', {
+        ...loggedProps,
         light: name,
         id,
         currVal: isOn,
@@ -54,5 +55,7 @@ export class Toggle extends ZoneFlow<FlowParams, void> {
         value: !isOn,
       });
     }
+
+    this.info('Toggled {numLights} lights in {zone}', loggedProps);
   }
 }

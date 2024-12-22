@@ -3,11 +3,11 @@
 import { ISmartHomeTools } from '../types/app';
 import { Zone } from '../utils/zones';
 import { ZoneFlow, ZoneFlowParams } from '../utils/flows/zone';
-import { LoggedFlow } from '../utils/flows/logged';
+import { LoggedFlow, LoggedFlowParams } from '../utils/flows/logged';
 
 export type FlowParams = {
   level: number;
-} & ZoneFlowParams;
+} & ZoneFlowParams & LoggedFlowParams;
 
 export class Dimming extends ZoneFlow<FlowParams, void> {
   constructor(app: ISmartHomeTools) {
@@ -16,12 +16,12 @@ export class Dimming extends ZoneFlow<FlowParams, void> {
 
   override async _run(args: FlowParams): Promise<void> {
     await super._run(args);
-    const loggingProps: Record<string, unknown> = {
+    const loggedProps: Record<string, unknown> = {
       zone: args.zone.name,
       dimLevel: args.level,
     };
 
-    this.info('dimming lights in {zone} to {dimLevel}', loggingProps);
+    this.info('Dimming lights in {zone} to {dimLevel}', loggedProps);
 
     // get lights in zone
     const devices = this._app.zones
@@ -34,15 +34,15 @@ export class Dimming extends ZoneFlow<FlowParams, void> {
         );
       });
 
-    this.debug('found {numLights} lights: {lights}', {
-      ...loggingProps,
+    this.debug('Found {numLights} lights: {lights}', {
+      ...loggedProps,
       numLights: devices.length,
       lights: devices.map((device) => device.name),
     });
 
     for (const { id, name } of devices) {
-      this.debug('dimming {light}', {
-        ...loggingProps,
+      this.debug('Dimming {light}', {
+        ...loggedProps,
         light: name,
         id,
       });

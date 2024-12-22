@@ -33,10 +33,6 @@ export class ZoneDB {
   private _lastUpdated: Date = new Date(0);
 
   constructor(sht: ISmartHomeTools) {
-    this._refresh(sht.api).catch(() => {
-      // nop
-    });
-
     // refresh every hour
     sht.homey.setInterval(() => {
       this._refresh(sht.api).catch(() => {

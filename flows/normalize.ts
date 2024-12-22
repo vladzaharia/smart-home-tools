@@ -1,21 +1,22 @@
 'use strict';
 
 import { ISmartHomeTools } from '../types/app';
-import { LoggedFlow } from '../utils/flows/logged';
+import { LoggedFlow, LoggedFlowParams } from '../utils/flows/logged';
 import { TurnOffLight } from './turn-off';
 
-export class Normalize extends LoggedFlow<void, void> {
+export class Normalize extends LoggedFlow<LoggedFlowParams, void> {
   constructor(app: ISmartHomeTools) {
     super(app, 'normalize');
   }
 
   override async _run(): Promise<void> {
-    await super._run();
+    await super._run({});
+    const loggedProps: Record<string, unknown> = { flow: this._flowName };
 
     // Refresh zones to ensure we have the latest activity data
     await this._app.zones._refresh(this._app.api);
 
-    this.info('normalizing lights throughout the house');
+    this.debug('Normalizing lights throughout the house');
 
     // get all automatic lights
     const devices = this._app.zones
@@ -26,14 +27,18 @@ export class Normalize extends LoggedFlow<void, void> {
           device.capabilities.includes('onoff') &&
           device.isAutomatic,
       );
+    loggedProps.numLights = devices.length;
+    loggedProps.numTurnedOff = 0;
+    loggedProps.numSkipped = 0;
 
-    this.debug('found {numLights} lights: {lights}', {
-      numLights: devices.length,
+    this.debug('Found {numLights} lights: {lights}', {
+      ...loggedProps,
       lights: devices.map((device) => device.name),
     });
 
     for (const { id, name, zone, capabilities } of devices) {
-      const loggingProps: Record<string, unknown> = {
+      const deviceLoggedProps: Record<string, unknown> = {
+        ...loggedProps,
         zone,
         light: name,
         id,
@@ -45,20 +50,22 @@ export class Normalize extends LoggedFlow<void, void> {
       ) {
         this.debug(
           '{zone} is still active, skipping trying to turn off {light}',
-          loggingProps,
+          deviceLoggedProps,
         );
+        (loggedProps.numSkipped as number) += 1;
         continue;
       }
 
-      this.debug('turning off {light}', loggingProps);
+      this.debug('Turning off {light}', deviceLoggedProps);
       await TurnOffLight(
         this._app,
         id,
         name,
         capabilities,
-        loggingProps,
+        deviceLoggedProps,
         this.debug.bind(this),
       );
+      (loggedProps.numTurnedOff as number) += 1;
     }
 
     // get all night lights
@@ -69,20 +76,22 @@ export class Normalize extends LoggedFlow<void, void> {
           device.class === 'light' &&
           device.name.toLowerCase().includes('night light'),
       );
+    loggedProps.numNightLights = nightLights.length;
 
-    this.debug('found {numLights} night lights: {lights}', {
-      numLights: nightLights.length,
+    this.debug('Found {numLights} night lights: {lights}', {
+      ...loggedProps,
       lights: nightLights.map((device) => device.name),
     });
 
     for (const { id, name } of nightLights) {
-      const loggingProps: Record<string, unknown> = {
+      const deviceLoggedProps: Record<string, unknown> = {
+        ...loggedProps,
         light: name,
         id,
         dimLevel: 0.75,
         temperature: 0.64,
       };
-      this.debug('dimming {light} to {dimLevel}', loggingProps);
+      this.debug('Dimming {light} to {dimLevel}', deviceLoggedProps);
 
       await this._app.api.devices.setCapabilityValue({
         deviceId: id,
@@ -95,7 +104,10 @@ export class Normalize extends LoggedFlow<void, void> {
         value: 0.75,
       });
 
-      this.debug('setting {light} to temperature {temperature}', loggingProps);
+      this.debug(
+        'Setting {light} temperature to {temperature}',
+        deviceLoggedProps,
+      );
       await this._app.api.devices.setCapabilityValue({
         deviceId: id,
         capabilityId: 'light_mode',
@@ -107,5 +119,10 @@ export class Normalize extends LoggedFlow<void, void> {
         value: '0.64',
       });
     }
+
+    this.info(
+      'Finished normalizing {numTurnedOff} lights and {numNightLights} night lights',
+      loggedProps,
+    );
   }
 }

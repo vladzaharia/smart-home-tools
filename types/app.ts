@@ -2,7 +2,7 @@
 
 import Homey from 'homey/lib/Homey';
 import { ZoneDB } from '../utils/zones';
-import { Logger } from '../utils/observability/log';
+import { Logger } from '../utils/log';
 
 export type Source =
   | 'dimming'
@@ -13,7 +13,7 @@ export type Source =
   | 'determine-luminence'
   | 'smart-dimming'
   | 'smart-turn-off'
-  | 'app';
+  | 'initialization';
 
 export interface ISmartHomeTools {
   homey: Homey;
@@ -23,8 +23,9 @@ export interface ISmartHomeTools {
   logger: Logger;
 
   log(
-    source: Source,
+    resource: Source,
     message: string,
     properties?: Record<string, unknown>,
+    level?: 'debug' | 'info' | 'warn' | 'error',
   ): void;
 }
