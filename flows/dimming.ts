@@ -7,7 +7,8 @@ import { LoggedFlow, LoggedFlowParams } from '../utils/flows/logged';
 
 export type FlowParams = {
   level: number;
-} & ZoneFlowParams & LoggedFlowParams;
+} & ZoneFlowParams &
+  LoggedFlowParams;
 
 export class Dimming extends ZoneFlow<FlowParams, void> {
   constructor(app: ISmartHomeTools) {
@@ -53,5 +54,11 @@ export class Dimming extends ZoneFlow<FlowParams, void> {
         value: args.level,
       });
     }
+
+    this.info('Finished dimming {numLights} lights in {zone} to {dimLevel}', {
+      ...loggedProps,
+      completed: devices.map((device) => device.name),
+      numCompleted: devices.length,
+    });
   }
 }

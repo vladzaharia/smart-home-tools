@@ -2,6 +2,7 @@
 
 import { HomeyAPI } from 'homey-api';
 import Homey from 'homey';
+import { v7 as uuid } from 'uuid';
 
 import { DetermineLuminence } from './flows/determine-luminence';
 import { SmartDimming } from './flows/smart-dimming';
@@ -29,31 +30,35 @@ module.exports = class SmartHomeTools
    * onInit is called when the init is initialized.
    */
   async onInit() {
+    const loggedProps = { runId: uuid() };
+
     this.logger = Logger.initialize(this.homey);
     this.log('initialization', 'Initializing SmartHomeTools', {
+      ...loggedProps,
       manifest: this.manifest,
     });
 
     // Create a HomeyAPI instance. Ensure your init has the `homey:manager:api` permission.
-    this.log('initialization', 'Initializing HomeyAPI', {}, 'debug');
+    this.log('initialization', 'Initializing HomeyAPI', loggedProps, 'debug');
     this.api = await HomeyAPI.createAppAPI({
       homey: this.homey,
     });
     this.log(
       'initialization',
       'Finished initializing HomeyAPI',
-      { api: this.api },
+      { ...loggedProps, api: this.api },
       'debug',
     );
 
     // Create a ZoneDB instance
-    this.log('initialization', 'Initializing ZoneDB', {}, 'debug');
+    this.log('initialization', 'Initializing ZoneDB', loggedProps, 'debug');
     this.zones = new ZoneDB(this);
     await this.zones._refresh(this.api);
     this.log(
       'initialization',
       'Finished initializing ZoneDB with {numZones} zones and {numDevices} devices',
       {
+        ...loggedProps,
         zones: this.zones.getZones().map((zone) => zone.name),
         devices: this.zones.getDevices().map((device) => device.name),
         numZones: this.zones.getZones().length,
@@ -67,11 +72,11 @@ module.exports = class SmartHomeTools
       this.log(
         'initialization',
         'Flows are already initialized, skipping initialization',
-        { flows: this._flows.map((f) => f._flowName) },
+        { ...loggedProps, flows: this._flows.map((f) => f._flowName) },
         'warn',
       );
     } else {
-      this.log('initialization', 'Initializing flows', {}, 'debug');
+      this.log('initialization', 'Initializing flows', loggedProps, 'debug');
       const determineLuminence = new DetermineLuminence(this);
       await determineLuminence.initialize();
       this._flows.push(determineLuminence);
@@ -106,13 +111,18 @@ module.exports = class SmartHomeTools
       this.log(
         'initialization',
         'Finished initializing flows!',
-        { flows: this._flows.map((f) => f._flowName) },
+        { ...loggedProps, flows: this._flows.map((f) => f._flowName) },
         'debug',
       );
     }
 
     // Log success
-    this.log('initialization', 'SmartHomeTools has been initialized!');
+    this.log(
+      'initialization',
+      'SmartHomeTools has been initialized!',
+      loggedProps,
+      'info',
+    );
   }
 
   log(

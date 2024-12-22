@@ -22,7 +22,7 @@ export class Logger {
     options?: Omit<
       SeqLoggerConfig,
       'onError' | 'handleExceptions' | 'handleRejections'
-    > & { logLevel?: 'debug' | 'info' | 'warn' | 'error', enableSeq?: boolean },
+    > & { logLevel?: 'debug' | 'info' | 'warn' | 'error'; enableSeq?: boolean },
   ) {
     const transports: TransportStream[] = [
       new winston.transports.Console({
@@ -133,7 +133,10 @@ export class Logger {
    * @param properties Additional properties to include in the log message.
    * @returns A child logger with the specified resource and properties.
    */
-  public child(resource: Source, properties?: Record<string, unknown>): winston.Logger {
+  public child(
+    resource: Source,
+    properties?: Record<string, unknown>,
+  ): winston.Logger {
     return this.logger.child({
       ...properties,
       resource,
@@ -150,7 +153,12 @@ export class Logger {
    *
    * @see `error()` to log errors
    */
-  public log(level: 'debug' | 'info' | 'warn' | 'error', message: string, properties?: Record<string, unknown>, logger = this.logger): void {
+  public log(
+    level: 'debug' | 'info' | 'warn' | 'error',
+    message: string,
+    properties?: Record<string, unknown>,
+    logger = this.logger,
+  ): void {
     logger[level](message, { ...properties, source: 'winston' });
   }
 

@@ -1,94 +1,93 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
-	"name": "Smart Home Tools",
-	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
+  "name": "Smart Home Tools",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bullseye",
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	"features": {
-		"ghcr.io/devcontainers/features/common-utils:2": {
-			"username": "vlad",
-			"userUid": "501",
-			"userGid": "501"
-		},
-		"ghcr.io/devcontainers-contrib/features/cloudflare-wrangler:1": {},
-		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
-		"ghcr.io/devcontainers-contrib/features/prettier:1": {},
-		"ghcr.io/wxw-matt/devcontainer-features/apt:0": {
-			"packages": "sudo"
-		},
-		"ghcr.io/wxw-matt/devcontainer-features/command_runner:0": {
-			"command1": "curl -fsSL https://starship.rs/install.sh | sh -s -- -y"
-		},
-		"ghcr.io/eliises/devcontainer-features/bash-profile:1": {
-			"command": "eval \"$(starship init bash)\""
-		},
-		"ghcr.io/devcontainers-extra/features/bash-command:1": {
-			"command": "npm install -g homey"
-		}
-	},
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "username": "vlad",
+      "userUid": "501",
+      "userGid": "501"
+    },
+    "ghcr.io/devcontainers-contrib/features/cloudflare-wrangler:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/devcontainers-contrib/features/prettier:1": {},
+    "ghcr.io/wxw-matt/devcontainer-features/apt:0": {
+      "packages": "sudo"
+    },
+    "ghcr.io/wxw-matt/devcontainer-features/command_runner:0": {
+      "command1": "curl -fsSL https://starship.rs/install.sh | sh -s -- -y"
+    },
+    "ghcr.io/eliises/devcontainer-features/bash-profile:1": {
+      "command": "eval \"$(starship init bash)\""
+    },
+    "ghcr.io/devcontainers-extra/features/bash-command:1": {
+      "command": "npm install -g homey"
+    }
+  },
 
-	"mounts": [
-		// "source=${localEnv:HOME}${localEnv:USERPROFILE},target=/home/vlad,type=bind,consistency=cached",
-		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.config,target=/home/vlad/.config,type=bind,consistency=cached",
-		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/vlad/.gitconfig,type=bind,consistency=cached",
-		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vlad/.ssh,type=bind,consistency=cached",
-		"source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
-	],
+  "mounts": [
+    // "source=${localEnv:HOME}${localEnv:USERPROFILE},target=/home/vlad,type=bind,consistency=cached",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.config,target=/home/vlad/.config,type=bind,consistency=cached",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.gitconfig,target=/home/vlad/.gitconfig,type=bind,consistency=cached",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/vlad/.ssh,type=bind,consistency=cached",
+    "source=${localWorkspaceFolderBasename}-node_modules,target=${containerWorkspaceFolder}/node_modules,type=volume"
+  ],
 
-	"containerEnv": {
-	},
+  "containerEnv": {},
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	"forwardPorts": [],
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  "forwardPorts": [],
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "sudo chown -R vlad node_modules && pnpm install",
-	//"postStartCommand": "pnpm run build",
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "sudo chown -R vlad node_modules && pnpm install",
+  //"postStartCommand": "pnpm run build",
 
-	// Configure tool-specific properties.
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"github.vscode-github-actions",
-				"eamodio.gitlens",
-				"yzhang.markdown-all-in-one",
-				"esbenp.prettier-vscode",
-				"cipchk.cssrem",
-				"GitHub.vscode-pull-request-github",
-				"BeardedBear.beardedicons",
-				"BeardedBear.beardedtheme",
-				"fabiospampinato.vscode-diff",
-				"dbaeumer.vscode-eslint",
-				"IronGeek.vscode-env"
-			],
-			"settings": {
-				"terminal.integrated.defaultProfile.linux": "bash",
-				"workbench.colorTheme": "Bearded Theme Black & Emerald",
-				"workbench.preferredDarkColorTheme": "Bearded Theme Black & Emerald",
-				"diffEditor.ignoreTrimWhitespace": false,
-				"git.enableSmartCommit": true,
-				"git.autofetch": true,
-				"git.confirmSync": false,
-				"[typescript]": {
-					"editor.defaultFormatter": "vscode.typescript-language-features"
-				},
-				"[typescriptreact]": {
-					"editor.defaultFormatter": "esbenp.prettier-vscode"
-				},
-				"[json]": {
-					"editor.defaultFormatter": "esbenp.prettier-vscode"
-				},
-				"[markdown]": {
-					"editor.defaultFormatter": "esbenp.prettier-vscode"
-				},
-				"files.associations": {
-					"*.swagger": "yaml"
-				}
-			}
-		}
-	},
+  // Configure tool-specific properties.
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "github.vscode-github-actions",
+        "eamodio.gitlens",
+        "yzhang.markdown-all-in-one",
+        "esbenp.prettier-vscode",
+        "cipchk.cssrem",
+        "GitHub.vscode-pull-request-github",
+        "BeardedBear.beardedicons",
+        "BeardedBear.beardedtheme",
+        "fabiospampinato.vscode-diff",
+        "dbaeumer.vscode-eslint",
+        "IronGeek.vscode-env"
+      ],
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "workbench.colorTheme": "Bearded Theme Black & Emerald",
+        "workbench.preferredDarkColorTheme": "Bearded Theme Black & Emerald",
+        "diffEditor.ignoreTrimWhitespace": false,
+        "git.enableSmartCommit": true,
+        "git.autofetch": true,
+        "git.confirmSync": false,
+        "[typescript]": {
+          "editor.defaultFormatter": "vscode.typescript-language-features"
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[json]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[markdown]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "files.associations": {
+          "*.swagger": "yaml"
+        }
+      }
+    }
+  },
 
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	"remoteUser": "vlad"
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  "remoteUser": "vlad"
 }

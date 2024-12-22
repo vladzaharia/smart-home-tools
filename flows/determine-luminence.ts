@@ -105,7 +105,9 @@ export class DetermineLuminence extends LoggedFlow<FlowParams, FlowResult> {
 
     const finalResult = {
       luminence: Number.parseFloat((result / 100).toFixed(2)),
-      luminence_dimmed: Number.parseFloat((result / dimFactor / 100).toFixed(2)),
+      luminence_dimmed: Number.parseFloat(
+        (result / dimFactor / 100).toFixed(2),
+      ),
     };
 
     this.info('Luminence for {zoneType} determined as {luminence}', {

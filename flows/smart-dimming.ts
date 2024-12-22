@@ -63,8 +63,8 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
       lights: devices.map((device) => device.name),
     });
 
-    loggedProps.numDimmed = 0;
-    loggedProps.numSkipped = 0;
+    loggedProps.completed = [];
+    loggedProps.skipped = [];
     for (const { id, name } of devices) {
       const deviceLoggingProps: Record<string, unknown> = {
         ...loggedProps,
@@ -96,19 +96,23 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
           capabilityId: 'dim',
           value: level,
         });
-        (loggedProps.numDimmed as number) += 1;
+        (loggedProps.completed as string[]).push(name);
       } else {
         this.debug(
           'Dim level ({currentDimLevel}) is already higher than requested one ({dimLevel}), skipping',
           deviceLoggingProps,
         );
-        (loggedProps.numSkipped as number) += 1;
+        (loggedProps.skipped as string[]).push(name);
       }
     }
 
     this.info(
-      'Finished dimming {numDimmed} lights in {zone} to {dimLevel}',
-      loggedProps,
+      'Finished dimming {numCompleted} lights in {zone} to {dimLevel}',
+      {
+        ...loggedProps,
+        numCompleted: (loggedProps.completed as string[]).length,
+        numSkipped: (loggedProps.skipped as string[]).length,
+      },
     );
   }
 }

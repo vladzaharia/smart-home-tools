@@ -26,7 +26,11 @@ export abstract class Flow<P, R> implements IFlow<P, R> {
     const flow = this._app.homey.flow.getActionCard(this._flowName);
 
     if (this._initialized) {
-      this._app.logger.log('warn', 'Flow is already initialized, skipping initialization', loggedProps);
+      this._app.logger.log(
+        'warn',
+        'Flow is already initialized, skipping initialization',
+        loggedProps,
+      );
       return flow;
     }
 
@@ -34,7 +38,11 @@ export abstract class Flow<P, R> implements IFlow<P, R> {
     this._initialized = true;
     flow.registerRunListener(this._run.bind(this));
 
-    this._app.logger.log('debug', 'Finished initializing {flow}/{class}', loggedProps);
+    this._app.logger.log(
+      'debug',
+      'Finished initializing {flow}/{class}',
+      loggedProps,
+    );
     return flow;
   }
 }

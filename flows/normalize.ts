@@ -28,8 +28,8 @@ export class Normalize extends LoggedFlow<LoggedFlowParams, void> {
           device.isAutomatic,
       );
     loggedProps.numLights = devices.length;
-    loggedProps.numTurnedOff = 0;
-    loggedProps.numSkipped = 0;
+    loggedProps.completed = [];
+    loggedProps.skipped = [];
 
     this.debug('Found {numLights} lights: {lights}', {
       ...loggedProps,
@@ -52,7 +52,7 @@ export class Normalize extends LoggedFlow<LoggedFlowParams, void> {
           '{zone} is still active, skipping trying to turn off {light}',
           deviceLoggedProps,
         );
-        (loggedProps.numSkipped as number) += 1;
+        (loggedProps.skipped as string[]).push(name);
         continue;
       }
 
@@ -65,7 +65,7 @@ export class Normalize extends LoggedFlow<LoggedFlowParams, void> {
         deviceLoggedProps,
         this.debug.bind(this),
       );
-      (loggedProps.numTurnedOff as number) += 1;
+      (loggedProps.completed as string[]).push(name);
     }
 
     // get all night lights
@@ -80,7 +80,7 @@ export class Normalize extends LoggedFlow<LoggedFlowParams, void> {
 
     this.debug('Found {numLights} night lights: {lights}', {
       ...loggedProps,
-      lights: nightLights.map((device) => device.name),
+      nightLights: nightLights.map((device) => device.name),
     });
 
     for (const { id, name } of nightLights) {
@@ -121,8 +121,13 @@ export class Normalize extends LoggedFlow<LoggedFlowParams, void> {
     }
 
     this.info(
-      'Finished normalizing {numTurnedOff} lights and {numNightLights} night lights',
-      loggedProps,
+      'Finished turning off {numCompleted} lights and normalizing {numNightLights} night lights',
+      {
+        ...loggedProps,
+        numCompleted: (loggedProps.completed as string[]).length,
+        numSkipped: (loggedProps.skipped as string[]).length,
+        nightLights: nightLights.map((device) => device.name),
+      },
     );
   }
 }

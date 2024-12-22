@@ -7,10 +7,13 @@ import { ILoggedFlow } from '../../types/logged';
 import { v7 as uuid } from 'uuid';
 
 export type LoggedFlowParams = {
-    correlationId?: string;
-  } & Record<string, unknown>;
+  correlationId?: string;
+} & Record<string, unknown>;
 
-export abstract class LoggedFlow<P extends LoggedFlowParams, R> extends Flow<P, R> implements ILoggedFlow {
+export abstract class LoggedFlow<P extends LoggedFlowParams, R>
+  extends Flow<P, R>
+  implements ILoggedFlow
+{
   protected _logger: winston.Logger;
   protected _loggedProps: Record<string, unknown> = {};
 
@@ -69,10 +72,23 @@ export abstract class LoggedFlow<P extends LoggedFlowParams, R> extends Flow<P, 
     error: Error | string,
     properties?: Record<string, unknown>,
   ): void {
-    this._app.logger.error(error, { ...this._loggedProps, ...properties }, this._logger);
+    this._app.logger.error(
+      error,
+      { ...this._loggedProps, ...properties },
+      this._logger,
+    );
   }
 
-  protected _log(level: 'debug' | 'info' | 'warn' | 'error', message: string, properties?: Record<string, unknown>): void {
-    this._app.logger.log(level, message, { ...this._loggedProps, ...properties }, this._logger);
+  protected _log(
+    level: 'debug' | 'info' | 'warn' | 'error',
+    message: string,
+    properties?: Record<string, unknown>,
+  ): void {
+    this._app.logger.log(
+      level,
+      message,
+      { ...this._loggedProps, ...properties },
+      this._logger,
+    );
   }
 }

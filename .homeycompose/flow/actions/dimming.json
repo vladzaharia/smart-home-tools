@@ -18,10 +18,10 @@
     },
     {
       "type": "autocomplete",
-			"name": "zone",
-			"placeholder": {
-				"en": "zone"
-			}
+      "name": "zone",
+      "placeholder": {
+        "en": "zone"
+      }
     }
   ]
 }

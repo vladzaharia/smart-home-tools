@@ -20,13 +20,15 @@ export class Toggle extends ZoneFlow<FlowParams, void> {
     this.debug('Toggling lights in {zone}', loggedProps);
 
     // get lights in zone
-    const devices = this._app.zones.getDevicesByZone(args.zone.id).filter((device) => {
-      return (
-        device.class === 'light'
-        && device.capabilities.includes('onoff')
-        && device.isAutomatic
-      );
-    });
+    const devices = this._app.zones
+      .getDevicesByZone(args.zone.id)
+      .filter((device) => {
+        return (
+          device.class === 'light' &&
+          device.capabilities.includes('onoff') &&
+          device.isAutomatic
+        );
+      });
     loggedProps.numLights = devices.length;
 
     this.debug('Found {numLights} lights: {lights}', {
@@ -56,6 +58,10 @@ export class Toggle extends ZoneFlow<FlowParams, void> {
       });
     }
 
-    this.info('Toggled {numLights} lights in {zone}', loggedProps);
+    this.info('Finished toggling {numCompleted} lights in {zone}', {
+      ...loggedProps,
+      completed: devices.map((device) => device.name),
+      numCompleted: devices.length,
+    });
   }
 }

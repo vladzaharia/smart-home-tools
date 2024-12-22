@@ -85,6 +85,10 @@ export class TurnOff extends ZoneFlow<FlowParams, void> {
       );
     }
 
-    this.info('Finished turning off {numLights} lights in {zone}', loggedProps);
+    this.info('Finished turning off {numCompleted} lights in {zone}', {
+      ...loggedProps,
+      completed: devices.map((device) => device.name),
+      numCompleted: devices.length,
+    });
   }
 }

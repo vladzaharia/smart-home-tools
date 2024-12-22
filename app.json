@@ -4,22 +4,15 @@
   "version": "1.0.0",
   "compatibility": ">=5.0.0",
   "sdk": 3,
-  "platforms": [
-    "local"
-  ],
+  "platforms": ["local"],
   "name": {
     "en": "Smart Home Tools"
   },
   "description": {
     "en": "Adds helpful scripts for our smart home setup."
   },
-  "category": [
-    "tools"
-  ],
-  "permissions": [
-    "homey:manager:api",
-    "homey:manager:geolocation"
-  ],
+  "category": ["tools"],
+  "permissions": ["homey:manager:api", "homey:manager:geolocation"],
   "brandColor": "#ad00d3",
   "images": {
     "small": "/assets/images/small.png",
