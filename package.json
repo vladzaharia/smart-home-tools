@@ -24,6 +24,7 @@
     "camelcase-to-kebab": "^1.0.0",
     "homey-api": "^3.6.8",
     "suncalc": "^1.9.0",
-    "winston": "^3.17.0"
+    "winston": "^3.17.0",
+    "winston-console-format": "^1.0.8"
   }
 }

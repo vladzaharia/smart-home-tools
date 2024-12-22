@@ -6,6 +6,7 @@ import Homey from 'homey/lib/Homey';
 import HomeyInstance from 'homey';
 import TransportStream from 'winston-transport';
 import { SeqLoggerConfig } from 'seq-logging';
+import { consoleFormat } from 'winston-console-format';
 
 export type LoggerOptions = {
   homey: Homey;
@@ -15,28 +16,63 @@ export class Logger {
   private static instance: Logger;
   private logger: winston.Logger;
 
-  private constructor(homey: Homey, options?: Omit<SeqLoggerConfig, 'onError' | 'handleExceptions' | 'handleRejections'>) {
-    const transports: TransportStream[] = [new winston.transports.Console({
-      format: winston.format.simple(),
-    })];
+  private constructor(
+    homey: Homey,
+    options?: Omit<
+      SeqLoggerConfig,
+      'onError' | 'handleExceptions' | 'handleRejections'
+    >,
+  ) {
+    const transports: TransportStream[] = [
+      new winston.transports.Console({
+        format: winston.format.combine(
+          winston.format.colorize({ all: true }),
+          winston.format.padLevels(),
+          consoleFormat({
+            showMeta: true,
+            metaStrip: [
+              'timestamp',
+              'source',
+              'appVersion',
+              'platformVersion',
+              'version',
+              'platform',
+              'manifest',
+              'name',
+            ],
+            inspectOptions: {
+              depth: Infinity,
+              colors: true,
+              maxArrayLength: Infinity,
+              breakLength: 120,
+              compact: Infinity,
+            },
+          }),
+        ),
+      }),
+    ];
 
     if (options) {
-      transports.push(new SeqTransport({
-        ...options,
-        onError: (error) => {
-          homey.error('Error sending log to Seq ', { error });
-        },
-        handleExceptions: true,
-        handleRejections: true,
-      }));
+      transports.push(
+        new SeqTransport({
+          ...options,
+          onError: (error) => {
+            homey.error('Error sending log to Seq ', { error });
+          },
+          handleExceptions: true,
+          handleRejections: true,
+        }),
+      );
     }
 
     this.logger = winston.createLogger({
       level: 'info',
       format: winston.format.combine(
-        winston.format.errors({ stack: true }),
-        winston.format.json(),
         winston.format.timestamp(),
+        winston.format.ms(),
+        winston.format.errors({ stack: true }),
+        winston.format.splat(),
+        winston.format.json(),
       ),
       defaultMeta: {
         version: homey.version,
