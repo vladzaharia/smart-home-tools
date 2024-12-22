@@ -1,0 +1,20 @@
+{
+  "title": {
+    "en": "Turn on lights"
+  },
+  "titleFormatted": {
+    "en": "Turn on lights in [[zone]]"
+  },
+  "hint": {
+    "en": "Turns on all (reasonable) lights in the specified zone"
+  },
+  "args": [
+    {
+      "type": "autocomplete",
+      "name": "zone",
+      "placeholder": {
+        "en": "Zone"
+      }
+    }
+  ]
+}

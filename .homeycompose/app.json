@@ -19,6 +19,7 @@
     "homey:manager:api",
     "homey:manager:geolocation"
   ],
+  "brandColor": "#ad00d3",
   "images": {
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png",

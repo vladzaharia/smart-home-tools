@@ -20,6 +20,7 @@
     "homey:manager:api",
     "homey:manager:geolocation"
   ],
+  "brandColor": "#ad00d3",
   "images": {
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png",
@@ -80,13 +81,10 @@
       },
       {
         "title": {
-          "en": "Intelligently dim lights"
+          "en": "Dim lights"
         },
         "titleFormatted": {
-          "en": "Intelligently dim lights in [[zone]] to [[level]]"
-        },
-        "hint": {
-          "en": "Dims lights only if the current dim level is lower than the requested one."
+          "en": "Dim lights in [[zone]] to [[level]]"
         },
         "args": [
           {
@@ -107,7 +105,174 @@
             }
           }
         ],
+        "id": "dimming"
+      },
+      {
+        "title": {
+          "en": "Normalize lights"
+        },
+        "titleFormatted": {
+          "en": "Normalize lights throughout the house"
+        },
+        "hint": {
+          "en": "Normalizes all lights in the house"
+        },
+        "id": "normalize"
+      },
+      {
+        "title": {
+          "en": "Intelligently dim lights"
+        },
+        "titleFormatted": {
+          "en": "Intelligently dim lights in [[zone]] to [[level]]"
+        },
+        "hint": {
+          "en": "Dims lights only if the current dim level is lower than the requested one."
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "zone",
+            "placeholder": {
+              "en": "zone"
+            }
+          },
+          {
+            "type": "dropdown",
+            "name": "level",
+            "required": false,
+            "values": [
+              {
+                "id": "standard",
+                "label": {
+                  "en": "standard"
+                }
+              },
+              {
+                "id": "dimmed",
+                "label": {
+                  "en": "dimmed"
+                }
+              }
+            ]
+          }
+        ],
         "id": "smart-dimming"
+      },
+      {
+        "title": {
+          "en": "Intelligently dim lights to a level"
+        },
+        "titleFormatted": {
+          "en": "Intelligently dim lights in [[zone]] to [[level]]"
+        },
+        "hint": {
+          "en": "Dims lights only if the current dim level is lower than the requested one."
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "zone",
+            "placeholder": {
+              "en": "zone"
+            }
+          },
+          {
+            "type": "range",
+            "name": "level",
+            "min": 0,
+            "max": 1,
+            "step": 0.05,
+            "label": "%",
+            "labelMultiplier": 100,
+            "labelDecimals": 0
+          }
+        ],
+        "id": "smart-dimming-level"
+      },
+      {
+        "title": {
+          "en": "Turn off lights if there's no activity"
+        },
+        "titleFormatted": {
+          "en": "Turn off lights in [[zone]] if there's no activity"
+        },
+        "hint": {
+          "en": "Turns off all (reasonable) lights in the specified zone if there's no activity"
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "zone",
+            "placeholder": {
+              "en": "Zone"
+            }
+          }
+        ],
+        "id": "smart-turn-off"
+      },
+      {
+        "title": {
+          "en": "Toggle lights"
+        },
+        "titleFormatted": {
+          "en": "Toggle lights in [[zone]]"
+        },
+        "hint": {
+          "en": "Toggles all (reasonable) lights in the specified zone"
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "zone",
+            "placeholder": {
+              "en": "Zone"
+            }
+          }
+        ],
+        "id": "toggle"
+      },
+      {
+        "title": {
+          "en": "Turn off lights"
+        },
+        "titleFormatted": {
+          "en": "Turn off lights in [[zone]]"
+        },
+        "hint": {
+          "en": "Turns off all (reasonable) lights in the specified zone"
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "zone",
+            "placeholder": {
+              "en": "Zone"
+            }
+          }
+        ],
+        "id": "turn-off"
+      },
+      {
+        "title": {
+          "en": "Turn on lights"
+        },
+        "titleFormatted": {
+          "en": "Turn on lights in [[zone]]"
+        },
+        "hint": {
+          "en": "Turns on all (reasonable) lights in the specified zone"
+        },
+        "args": [
+          {
+            "type": "autocomplete",
+            "name": "zone",
+            "placeholder": {
+              "en": "Zone"
+            }
+          }
+        ],
+        "id": "turn-on"
       }
     ]
   }

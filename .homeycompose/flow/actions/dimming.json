@@ -1,0 +1,27 @@
+{
+  "title": {
+    "en": "Dim lights"
+  },
+  "titleFormatted": {
+    "en": "Dim lights in [[zone]] to [[level]]"
+  },
+  "args": [
+    {
+      "type": "range",
+      "name": "level",
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "label": "%",
+      "labelMultiplier": 100,
+      "labelDecimals": 0
+    },
+    {
+      "type": "autocomplete",
+			"name": "zone",
+			"placeholder": {
+				"en": "zone"
+			}
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "title": {
+    "en": "Turn off lights if there's no activity"
+  },
+  "titleFormatted": {
+    "en": "Turn off lights in [[zone]] if there's no activity"
+  },
+  "hint": {
+    "en": "Turns off all (reasonable) lights in the specified zone if there's no activity"
+  },
+  "args": [
+    {
+      "type": "autocomplete",
+      "name": "zone",
+      "placeholder": {
+        "en": "Zone"
+      }
+    }
+  ]
+}

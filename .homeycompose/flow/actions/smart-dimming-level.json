@@ -1,6 +1,6 @@
 {
   "title": {
-    "en": "Intelligently dim lights"
+    "en": "Intelligently dim lights to a level"
   },
   "titleFormatted": {
     "en": "Intelligently dim lights in [[zone]] to [[level]]"
@@ -17,23 +17,14 @@
 			}
     },
     {
-      "type": "dropdown",
+      "type": "range",
       "name": "level",
-      "required": false,
-      "values": [
-        {
-          "id": "standard",
-          "label": {
-            "en": "standard"
-          }
-        },
-        {
-          "id": "dimmed",
-          "label": {
-            "en": "dimmed"
-          }
-        }
-      ]
+      "min": 0,
+      "max": 1,
+      "step": 0.05,
+      "label": "%",
+      "labelMultiplier": 100,
+      "labelDecimals": 0
     }
   ]
 }
