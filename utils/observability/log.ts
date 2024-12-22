@@ -7,7 +7,7 @@ import HomeyInstance from 'homey';
 import TransportStream from 'winston-transport';
 import { SeqLoggerConfig } from 'seq-logging';
 import { consoleFormat } from 'winston-console-format';
-import { Source } from '../types/app';
+import { Source } from '../../types/app';
 
 export type LoggerOptions = {
   homey: Homey;

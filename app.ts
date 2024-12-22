@@ -13,7 +13,7 @@ import { TurnOn } from './flows/turn-on';
 import { Normalize } from './flows/normalize';
 import { ZoneDB } from './utils/zones';
 import { ISmartHomeTools, Source } from './types/app';
-import { Logger } from './utils/log';
+import { Logger } from './utils/observability/log';
 import { IFlow } from './types/flow';
 
 module.exports = class SmartHomeTools extends Homey.App implements ISmartHomeTools {

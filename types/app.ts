@@ -2,7 +2,7 @@
 
 import Homey from 'homey/lib/Homey';
 import { ZoneDB } from '../utils/zones';
-import { Logger } from '../utils/log';
+import { Logger } from '../utils/observability/log';
 
 export type Source =
   | 'dimming'

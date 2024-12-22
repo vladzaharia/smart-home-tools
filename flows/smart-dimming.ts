@@ -75,19 +75,14 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
       deviceLoggingProps.currentDimLevel = currentDimLevel;
       this.debug('current dim level is {currentDimLevel}', deviceLoggingProps);
 
-      // check if current dim level is lower than requested one
-      if (currentDimLevel < level) {
-        this.debug(
-          'turning light on before dimming to prevent flashing',
-          deviceLoggingProps,
-        );
-        // turn on first to prevent flashing
-        await this._app.api.devices.setCapabilityValue({
-          deviceId: id,
-          capabilityId: 'onoff',
-          value: true,
-        });
+      const isOn = await this._app.api.devices.getCapabilityValue({
+        deviceId: id,
+        capabilityId: 'onoff',
+      });
+      deviceLoggingProps.isOn = isOn;
 
+      // check if current dim level is lower than requested one or light is off
+      if (currentDimLevel < level || !isOn) {
         this.debug('dimming to {dimLevel}', deviceLoggingProps);
         // set dim level
         await this._app.api.devices.setCapabilityValue({
