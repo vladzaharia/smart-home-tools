@@ -7,6 +7,7 @@ import HomeyInstance from 'homey';
 import TransportStream from 'winston-transport';
 import { SeqLoggerConfig } from 'seq-logging';
 import { consoleFormat } from 'winston-console-format';
+import { Source } from '../types/app';
 
 export type LoggerOptions = {
   homey: Homey;
@@ -21,7 +22,7 @@ export class Logger {
     options?: Omit<
       SeqLoggerConfig,
       'onError' | 'handleExceptions' | 'handleRejections'
-    >,
+    > & { logLevel?: 'debug' | 'info' | 'warn' | 'error', enableSeq?: boolean },
   ) {
     const transports: TransportStream[] = [
       new winston.transports.Console({
@@ -32,7 +33,7 @@ export class Logger {
             showMeta: true,
             metaStrip: [
               'timestamp',
-              'source',
+              // 'source',
               'appVersion',
               'platformVersion',
               'version',
@@ -52,7 +53,7 @@ export class Logger {
       }),
     ];
 
-    if (options) {
+    if (options?.enableSeq === true) {
       transports.push(
         new SeqTransport({
           ...options,
@@ -66,7 +67,7 @@ export class Logger {
     }
 
     this.logger = winston.createLogger({
-      level: 'info',
+      level: options?.logLevel || 'info',
       format: winston.format.combine(
         winston.format.timestamp(),
         winston.format.ms(),
@@ -86,7 +87,7 @@ export class Logger {
 
   public static initialize(homey: Homey): Logger {
     if (!Logger.instance) {
-      let useSeq = false;
+      let enableSeq = false;
       if (typeof homey === 'undefined') {
         // eslint-disable-next-line no-console
         console.error(
@@ -105,17 +106,15 @@ export class Logger {
           'Error: expected `SEQ_SERVER_URL` env variable, Seq redirection is disabled',
         );
       } else {
-        useSeq = true;
+        enableSeq = true;
       }
 
-      if (useSeq) {
-        Logger.instance = new Logger(homey, {
-          apiKey: HomeyInstance.env.SEQ_API_KEY,
-          serverUrl: HomeyInstance.env.SEQ_SERVER_URL,
-        });
-      } else {
-        Logger.instance = new Logger(homey);
-      }
+      Logger.instance = new Logger(homey, {
+        apiKey: HomeyInstance.env.SEQ_API_KEY,
+        serverUrl: HomeyInstance.env.SEQ_SERVER_URL,
+        logLevel: HomeyInstance.env.LOG_LEVEL,
+        enableSeq,
+      });
     }
     return Logger.instance;
   }
@@ -127,13 +126,45 @@ export class Logger {
     return Logger.instance;
   }
 
-  public info(message: string, properties?: Record<string, unknown>): void {
-    this.logger.info(message, properties || {});
+  /**
+   * Creates a child logger with the specified source and properties.
+   *
+   * @param source The source of the log message.
+   * @param properties Additional properties to include in the log message.
+   * @returns A child logger with the specified source and properties.
+   */
+  public child(source: Source, properties?: Record<string, unknown>): winston.Logger {
+    return this.logger.child({
+      ...properties,
+      source,
+    });
   }
 
+  /**
+   * Logs a message with the specified level.
+   *
+   * @param level The level of the message (e.g., 'debug', 'info', 'warn', 'error').
+   * @param message The message to log.
+   * @param properties Optional properties to include in the log entry.
+   * @param logger Optional logger to use. Defaults to the instance's logger.
+   *
+   * @see `error()` to log errors
+   */
+  public log(level: 'debug' | 'info' | 'warn' | 'error', message: string, properties?: Record<string, unknown>, logger = this.logger): void {
+    logger[level](message, properties || {});
+  }
+
+  /**
+   * Logs an error message.
+   *
+   * @param error The error object or error message to log.
+   * @param properties Optional properties to include in the log entry.
+   * @param logger Optional logger to use. Defaults to the instance's logger.
+   */
   public error(
     error: Error | string,
     properties?: Record<string, unknown>,
+    logger = this.logger,
   ): void {
     if (error instanceof Error) {
       const errorProperties = {
@@ -141,9 +172,9 @@ export class Logger {
         stack: error.stack,
         name: error.name,
       };
-      this.logger.error(error.message, errorProperties);
+      this.log('error', error.message, errorProperties, logger);
     } else {
-      this.logger.error(error, properties || {});
+      this.log('error', error, properties, logger);
     }
   }
 }

@@ -9,29 +9,39 @@ export class TurnOn extends ZoneFlow<FlowParams, void> {
   constructor(app: ISmartHomeTools) {
     super(app, 'turn-on');
   }
-  
+
   override async _run(args: FlowParams): Promise<void> {
     await super._run(args);
 
-    this.log(`turning on lights in zone ${args.zone.name}`);
+    const loggingProps: Record<string, unknown> = {
+      zone: args.zone.name,
+    };
+
+    this.debug('turning on lights in {zone}', loggingProps);
 
     // get lights in zone
     const devices = this._app.zones.getDevicesByZone(args.zone.id).filter((device) => {
       return (
-        device.class === 'light' &&
-        device.capabilities.includes('onoff') &&
-        device.isAutomatic
+        device.class === 'light'
+        && device.capabilities.includes('onoff')
+        && device.isAutomatic
       );
     });
 
-    this.log(
-      `found ${devices.length} lights: ${devices
-        .map((device) => device.name)
-        .join(', ')}`,
-    );
+    this.debug('found {numLights} lights: {lights}', {
+      ...loggingProps,
+      numLights: devices.length,
+      lights: devices.map((device) => device.name),
+    });
 
     for (const { id, name } of devices) {
-      this.log(`turning on ${name} (id ${id})`);
+      const deviceLoggingProps: Record<string, unknown> = {
+        ...loggingProps,
+        light: name,
+        id,
+      };
+
+      this.debug('turning on {light}', deviceLoggingProps);
 
       await this._app.api.devices.setCapabilityValue({
         deviceId: id,

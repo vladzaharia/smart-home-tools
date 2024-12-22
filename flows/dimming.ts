@@ -3,6 +3,7 @@
 import { ISmartHomeTools } from '../types/app';
 import { Zone } from '../utils/zones';
 import { ZoneFlow, ZoneFlowParams } from '../utils/flows/zone';
+import { LoggedFlow } from '../utils/flows/logged';
 
 export type FlowParams = {
   level: number;
@@ -15,8 +16,12 @@ export class Dimming extends ZoneFlow<FlowParams, void> {
 
   override async _run(args: FlowParams): Promise<void> {
     await super._run(args);
+    const loggingProps: Record<string, unknown> = {
+      zone: args.zone.name,
+      dimLevel: args.level,
+    };
 
-    this.log(`dimming lights in zone ${args.zone.name} to ${args.level}`);
+    this.info('dimming lights in {zone} to {dimLevel}', loggingProps);
 
     // get lights in zone
     const devices = this._app.zones
@@ -29,14 +34,18 @@ export class Dimming extends ZoneFlow<FlowParams, void> {
         );
       });
 
-    this.log(
-      `found ${devices.length} lights: ${devices
-        .map((device) => device.name)
-        .join(', ')}`,
-    );
+    this.debug('found {numLights} lights: {lights}', {
+      ...loggingProps,
+      numLights: devices.length,
+      lights: devices.map((device) => device.name),
+    });
 
     for (const { id, name } of devices) {
-      this.log(`dimming ${name} (id ${id})`);
+      this.debug('dimming {light}', {
+        ...loggingProps,
+        light: name,
+        id,
+      });
 
       await this._app.api.devices.setCapabilityValue({
         deviceId: id,

@@ -12,23 +12,26 @@ export class Toggle extends ZoneFlow<FlowParams, void> {
 
   override async _run(args: FlowParams): Promise<void> {
     await super._run(args);
+    const loggingProps: Record<string, unknown> = {
+      zone: args.zone.name,
+    };
 
-    this.log(`toggling lights in zone ${args.zone.name}`);
+    this.debug('toggling lights in {zone}', loggingProps);
 
     // get lights in zone
     const devices = this._app.zones.getDevicesByZone(args.zone.id).filter((device) => {
       return (
-        device.class === 'light' &&
-        device.capabilities.includes('onoff') &&
-        device.isAutomatic
+        device.class === 'light'
+        && device.capabilities.includes('onoff')
+        && device.isAutomatic
       );
     });
 
-    this.log(
-      `found ${devices.length} lights: ${devices
-        .map((device) => device.name)
-        .join(', ')}`,
-    );
+    this.debug('found {numLights} lights: {lights}', {
+      ...loggingProps,
+      numLights: devices.length,
+      lights: devices.map((device) => device.name),
+    });
 
     for (const { id, name } of devices) {
       // get current state
@@ -37,7 +40,13 @@ export class Toggle extends ZoneFlow<FlowParams, void> {
         capabilityId: 'onoff',
       });
 
-      this.log(`toggling ${name} (id ${id}) from ${isOn} to ${!isOn}`);
+      this.debug('toggling {light} from {currVal} to {newVal}', {
+        ...loggingProps,
+        light: name,
+        id,
+        currVal: isOn,
+        newVal: !isOn,
+      });
 
       await this._app.api.devices.setCapabilityValue({
         deviceId: id,
