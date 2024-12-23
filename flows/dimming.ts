@@ -25,24 +25,16 @@ export class Dimming extends ZoneFlow<FlowParams, void> {
     this.info('Dimming lights in {zone} to {dimLevel}', loggedProps);
 
     // get lights in zone
-    const devices = this._app.zones
-      .getDevicesByZone(args.zone.id)
-      .filter((device) => {
-        return (
-          device.class === 'light' &&
-          device.capabilities.includes('dim') &&
-          device.isAutomatic
-        );
-      });
+    const devices = this._app.zones.getLightsInZone(args.zone.id, 'dim');
 
-    this.debug('Found {numLights} lights: {lights}', {
+    this.debug('Found {numLights} lights in {zone}: {lights}', {
       ...loggedProps,
       numLights: devices.length,
       lights: devices.map((device) => device.name),
     });
 
     for (const { id, name } of devices) {
-      this.debug('Dimming {light}', {
+      this.debug('Dimming {light} to {dimLevel}', {
         ...loggedProps,
         light: name,
         id,

@@ -19,8 +19,10 @@ export abstract class Flow<P, R> implements IFlow<P, R> {
     return {} as R;
   }
 
-  async initialize(): Promise<FlowCard> {
-    const loggedProps = { flow: this._flowName, class: 'BaseFlow' };
+  async initialize(
+    loggedProps: Record<string, unknown> = {},
+  ): Promise<FlowCard> {
+    loggedProps = { ...loggedProps, flow: this._flowName, class: 'BaseFlow' };
     this._app.logger.log('debug', 'Initializing {flow}/{class}', loggedProps);
 
     const flow = this._app.homey.flow.getActionCard(this._flowName);

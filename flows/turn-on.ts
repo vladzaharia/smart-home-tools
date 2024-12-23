@@ -21,18 +21,11 @@ export class TurnOn extends ZoneFlow<FlowParams, void> {
     this.debug('Turning on lights in {zone}', loggedProps);
 
     // get lights in zone
-    const devices = this._app.zones
-      .getDevicesByZone(args.zone.id)
-      .filter((device) => {
-        return (
-          device.class === 'light' &&
-          device.capabilities.includes('onoff') &&
-          device.isAutomatic
-        );
-      });
+    const devices = this._app.zones.getLightsInZone(args.zone.id);
+
     loggedProps.numLights = devices.length;
 
-    this.debug('Found {numLights} lights: {lights}', {
+    this.debug('Found {numLights} lights in {zone}: {lights}', {
       ...loggedProps,
       lights: devices.map((device) => device.name),
     });

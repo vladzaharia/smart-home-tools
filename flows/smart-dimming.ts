@@ -24,7 +24,7 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
 
     let { level } = args;
 
-    this.debug('Dimming lights in {zone} to {dimLevel}', loggedProps);
+    this.info('Dimming lights in {zone} to {dimLevel}', loggedProps);
 
     if (typeof level !== 'number') {
       this.debug(
@@ -47,18 +47,10 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
     this.debug('Dimming lights to {dimLevel}', loggedProps);
 
     // get lights in zone
-    const devices = this._app.zones
-      .getDevicesByZone(args.zone.id)
-      .filter((device) => {
-        return (
-          device.class === 'light' &&
-          device.capabilities.includes('dim') &&
-          device.isAutomatic
-        );
-      });
+    const devices = this._app.zones.getLightsInZone(args.zone.id, 'dim');
     loggedProps.numLights = devices.length;
 
-    this.debug('Found {numLights} lights: {lights}', {
+    this.debug('Found {numLights} lights in {zone}: {lights}', {
       ...loggedProps,
       lights: devices.map((device) => device.name),
     });
@@ -71,7 +63,7 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
         light: name,
         id,
       };
-      this.debug('Dimming {light}', deviceLoggingProps);
+      this.debug('Dimming {light} to {dimLevel}', deviceLoggingProps);
 
       // get current dim level
       const currentDimLevel = await this._app.api.devices.getCapabilityValue({
@@ -79,7 +71,7 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
         capabilityId: 'dim',
       });
       deviceLoggingProps.currentDimLevel = currentDimLevel;
-      this.debug('Current dim level is {currentDimLevel}', deviceLoggingProps);
+      this.debug('{light}\'s dim level is {currentDimLevel}', deviceLoggingProps);
 
       const isOn = await this._app.api.devices.getCapabilityValue({
         deviceId: id,
@@ -89,7 +81,7 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
 
       // check if current dim level is lower than requested one or light is off
       if (currentDimLevel < level || !isOn) {
-        this.debug('Dimming to {dimLevel}', deviceLoggingProps);
+        this.debug('Dimming {light} to {dimLevel}', deviceLoggingProps);
         // set dim level
         await this._app.api.devices.setCapabilityValue({
           deviceId: id,
@@ -99,7 +91,7 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
         (loggedProps.completed as string[]).push(name);
       } else {
         this.debug(
-          'Dim level ({currentDimLevel}) is already higher than requested one ({dimLevel}), skipping',
+          'Dim level for {light} ({currentDimLevel}) is already higher than requested ({dimLevel}), skipping',
           deviceLoggingProps,
         );
         (loggedProps.skipped as string[]).push(name);
@@ -107,7 +99,7 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
     }
 
     this.info(
-      'Finished dimming {numCompleted} lights in {zone} to {dimLevel}',
+      'Finished dimming {numCompleted} lights in {zone} to {dimLevel}, skipped {skipped}',
       {
         ...loggedProps,
         numCompleted: (loggedProps.completed as string[]).length,

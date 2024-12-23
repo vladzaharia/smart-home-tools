@@ -46,7 +46,7 @@ export class DetermineLuminence extends LoggedFlow<FlowParams, FlowResult> {
       ...args['loggedProps'],
     };
 
-    this.debug('Determining luminence for zone type {zoneType}', loggedProps);
+    this.info('Determining luminence for zone type {zoneType}', loggedProps);
 
     // Get current hour from local time
     const currHour = this._getHour(undefined);

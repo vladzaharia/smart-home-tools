@@ -15,11 +15,13 @@ export abstract class ZoneFlow<P extends ZoneFlowParams, R> extends LoggedFlow<
 > {
   private _zonesInitialized = false;
 
-  override async initialize(): Promise<FlowCard> {
-    const loggedProps = { flow: this._flowName, class: 'ZoneFlow' };
+  override async initialize(
+    loggedProps: Record<string, unknown> = {},
+  ): Promise<FlowCard> {
+    loggedProps = { ...loggedProps, flow: this._flowName, class: 'ZoneFlow' };
     this.debug('Initializing {flow}/{class}', loggedProps);
 
-    const flow = await super.initialize();
+    const flow = await super.initialize(loggedProps);
     if (this._zonesInitialized) {
       this.warn(
         'Flow autocomplete is already initialized, skipping initialization',

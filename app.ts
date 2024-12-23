@@ -78,35 +78,35 @@ module.exports = class SmartHomeTools
     } else {
       this.log('initialization', 'Initializing flows', loggedProps, 'debug');
       const determineLuminence = new DetermineLuminence(this);
-      await determineLuminence.initialize();
+      await determineLuminence.initialize(loggedProps);
       this._flows.push(determineLuminence);
 
       const smartDimming = new SmartDimming(this);
-      await smartDimming.initialize();
+      await smartDimming.initialize(loggedProps);
       this._flows.push(smartDimming);
 
       const smartTurnOff = new SmartTurnOff(this);
-      await smartTurnOff.initialize();
+      await smartTurnOff.initialize(loggedProps);
       this._flows.push(smartTurnOff);
 
       const dimming = new Dimming(this);
-      await dimming.initialize();
+      await dimming.initialize(loggedProps);
       this._flows.push(dimming);
 
       const toggle = new Toggle(this);
-      await toggle.initialize();
+      await toggle.initialize(loggedProps);
       this._flows.push(toggle);
 
       const turnOff = new TurnOff(this);
-      await turnOff.initialize();
+      await turnOff.initialize(loggedProps);
       this._flows.push(turnOff);
 
       const turnOn = new TurnOn(this);
-      await turnOn.initialize();
+      await turnOn.initialize(loggedProps);
       this._flows.push(turnOn);
 
       const normalize = new Normalize(this);
-      await normalize.initialize();
+      await normalize.initialize(loggedProps);
       this._flows.push(normalize);
       this.log(
         'initialization',

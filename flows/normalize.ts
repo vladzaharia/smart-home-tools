@@ -2,7 +2,6 @@
 
 import { ISmartHomeTools } from '../types/app';
 import { LoggedFlow, LoggedFlowParams } from '../utils/flows/logged';
-import { TurnOffLight } from './turn-off';
 
 export class Normalize extends LoggedFlow<LoggedFlowParams, void> {
   constructor(app: ISmartHomeTools) {
@@ -56,15 +55,29 @@ export class Normalize extends LoggedFlow<LoggedFlowParams, void> {
         continue;
       }
 
-      this.debug('Turning off {light}', deviceLoggedProps);
-      await TurnOffLight(
-        this._app,
+      const deviceLoggingProps: Record<string, unknown> = {
+        ...loggedProps,
+        light: name,
         id,
-        name,
-        capabilities,
-        deviceLoggedProps,
-        this.debug.bind(this),
-      );
+      };
+
+      this.debug('Turning off {light}', deviceLoggingProps);
+
+      if (capabilities.includes('dim')) {
+        this.debug('dimming {light} to 0%', deviceLoggingProps);
+        await this._app.api.devices.setCapabilityValue({
+          deviceId: id,
+          capabilityId: 'dim',
+          value: 0,
+        });
+      }
+
+      this.debug('turning off {light}', deviceLoggingProps);
+      await this._app.api.devices.setCapabilityValue({
+        deviceId: id,
+        capabilityId: 'onoff',
+        value: false,
+      });
       (loggedProps.completed as string[]).push(name);
     }
 
@@ -121,7 +134,7 @@ export class Normalize extends LoggedFlow<LoggedFlowParams, void> {
     }
 
     this.info(
-      'Finished turning off {numCompleted} lights and normalizing {numNightLights} night lights',
+      'Finished turning off {numCompleted} lights and normalizing {numNightLights} night lights, skipped {skipped}',
       {
         ...loggedProps,
         numCompleted: (loggedProps.completed as string[]).length,

@@ -17,18 +17,10 @@ export class Toggle extends ZoneFlow<FlowParams, void> {
       zone: args.zone.name,
     };
 
-    this.debug('Toggling lights in {zone}', loggedProps);
+    this.info('Toggling lights in {zone}', loggedProps);
 
     // get lights in zone
-    const devices = this._app.zones
-      .getDevicesByZone(args.zone.id)
-      .filter((device) => {
-        return (
-          device.class === 'light' &&
-          device.capabilities.includes('onoff') &&
-          device.isAutomatic
-        );
-      });
+    const devices = this._app.zones.getLightsInZone(args.zone.id);
     loggedProps.numLights = devices.length;
 
     this.debug('Found {numLights} lights: {lights}', {

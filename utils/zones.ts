@@ -107,8 +107,8 @@ export class ZoneDB {
   public getZones(query?: string) {
     return query
       ? (this._zones.filter((zone: Zone) =>
-          zone.name.toLowerCase().includes(query.toLowerCase()),
-        ) as Zone[])
+        zone.name.toLowerCase().includes(query.toLowerCase()),
+      ) as Zone[])
       : this._sortZones(this._zones);
   }
 
@@ -120,7 +120,20 @@ export class ZoneDB {
     return this._devices;
   }
 
-  public getDevicesByZone(zoneId: string) {
+  public getLightsInZone(
+    zoneId: string,
+    capability: 'onoff' | 'dim' = 'onoff',
+    isAutomatic: boolean = true,
+  ) {
+    return this.getDevicesInZone(zoneId).filter(
+      (device) =>
+        device.class === 'light' &&
+        device.capabilities.includes(capability) &&
+        device.isAutomatic === isAutomatic,
+    );
+  }
+
+  public getDevicesInZone(zoneId: string) {
     return this._devicesByZone[zoneId] || [];
   }
 
