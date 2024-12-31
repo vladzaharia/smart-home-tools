@@ -12,10 +12,11 @@ import { Toggle } from './flows/toggle';
 import { TurnOff } from './flows/turn-off';
 import { TurnOn } from './flows/turn-on';
 import { Normalize } from './flows/normalize';
-import { ZoneDB } from './utils/zones';
+import { ZoneDB } from './utils/zones/zones';
 import { ISmartHomeTools, Source } from './types/app';
 import { Logger } from './utils/log';
 import { IFlow } from './types/flow';
+import { LogFlow } from './flows/log';
 
 module.exports = class SmartHomeTools
   extends Homey.App
@@ -84,6 +85,14 @@ module.exports = class SmartHomeTools
       const smartDimming = new SmartDimming(this);
       await smartDimming.initialize(loggedProps);
       this._flows.push(smartDimming);
+
+      const smartDimmingLevel = new SmartDimming(this, 'smart-dimming-level');
+      await smartDimmingLevel.initialize(loggedProps);
+      this._flows.push(smartDimmingLevel);
+
+      const logFlow = new LogFlow(this);
+      await logFlow.initialize(loggedProps);
+      this._flows.push(logFlow);
 
       const smartTurnOff = new SmartTurnOff(this);
       await smartTurnOff.initialize(loggedProps);

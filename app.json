@@ -39,6 +39,7 @@
         "titleFormatted": {
           "en": "Determine luminence value for [[zoneType]]"
         },
+        "highlight": true,
         "args": [
           {
             "type": "dropdown",
@@ -109,6 +110,58 @@
       },
       {
         "title": {
+          "en": "Log message"
+        },
+        "titleFormatted": {
+          "en": "Log [[message]] with level [[level]]"
+        },
+        "hint": {
+          "en": "By default, logs info messages"
+        },
+        "args": [
+          {
+            "type": "text",
+            "name": "message",
+            "placeholder": {
+              "en": "message"
+            }
+          },
+          {
+            "type": "dropdown",
+            "name": "level",
+            "required": false,
+            "values": [
+              {
+                "id": "info",
+                "label": {
+                  "en": "info"
+                }
+              },
+              {
+                "id": "debug",
+                "label": {
+                  "en": "debug"
+                }
+              },
+              {
+                "id": "warn",
+                "label": {
+                  "en": "warn"
+                }
+              },
+              {
+                "id": "error",
+                "label": {
+                  "en": "error"
+                }
+              }
+            ]
+          }
+        ],
+        "id": "log"
+      },
+      {
+        "title": {
           "en": "Normalize lights"
         },
         "titleFormatted": {
@@ -129,6 +182,7 @@
         "hint": {
           "en": "Dims lights only if the current dim level is lower than the requested one."
         },
+        "highlight": true,
         "args": [
           {
             "type": "autocomplete",

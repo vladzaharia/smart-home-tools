@@ -1,7 +1,7 @@
 'use strict';
 
 import Homey from 'homey/lib/Homey';
-import { ZoneDB } from '../utils/zones';
+import { ZoneDB } from '../utils/zones/zones';
 import { Logger } from '../utils/log';
 
 export type Source =
@@ -12,8 +12,10 @@ export type Source =
   | 'normalize'
   | 'determine-luminence'
   | 'smart-dimming'
+  | 'smart-dimming-level'
   | 'smart-turn-off'
-  | 'initialization';
+  | 'initialization'
+  | 'log';
 
 export interface ISmartHomeTools {
   homey: Homey;

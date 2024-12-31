@@ -2,7 +2,7 @@
 
 import { FlowCard } from 'homey';
 import { ISmartHomeTools } from '../../types/app';
-import { Zone } from '../zones';
+import { Zone } from '../zones/zones';
 import { LoggedFlow } from './logged';
 
 export type ZoneFlowParams = {
@@ -32,7 +32,7 @@ export abstract class ZoneFlow<P extends ZoneFlowParams, R> extends LoggedFlow<
 
     this._zonesInitialized = true;
     this.debug('Initializing autocomplete for {flow}', loggedProps);
-    flow.registerArgumentAutocompleteListener(
+    await flow.registerArgumentAutocompleteListener(
       'zone',
       this._app.zones.getZones.bind(this._app.zones),
     );

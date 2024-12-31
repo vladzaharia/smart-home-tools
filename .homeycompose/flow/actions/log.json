@@ -1,0 +1,51 @@
+{
+  "title": {
+    "en": "Log message"
+  },
+  "titleFormatted": {
+    "en": "Log [[message]] with level [[level]]"
+  },
+  "hint": {
+    "en": "By default, logs info messages"
+  },
+  "args": [
+    {
+      "type": "text",
+      "name": "message",
+      "placeholder": {
+        "en": "message"
+      }
+    },
+    {
+      "type": "dropdown",
+      "name": "level",
+      "required": false,
+      "values": [
+        {
+          "id": "info",
+          "label": {
+            "en": "info"
+          }
+        },
+        {
+          "id": "debug",
+          "label": {
+            "en": "debug"
+          }
+        },
+        {
+          "id": "warn",
+          "label": {
+            "en": "warn"
+          }
+        },
+        {
+          "id": "error",
+          "label": {
+            "en": "error"
+          }
+        }
+      ]
+    }
+  ]
+}

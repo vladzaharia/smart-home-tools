@@ -1,7 +1,11 @@
+/* eslint-disable function-paren-newline */
+/* eslint-disable implicit-arrow-linebreak */
+
 'use strict';
 
-import { ISmartHomeTools } from '../types/app';
-import { getIcon } from './icons';
+import { ISmartHomeTools } from '../../types/app';
+import { getIcon } from '../icons';
+import { Device, GetDeviceModel } from './devices';
 
 export type Zone = {
   id: string;
@@ -13,17 +17,6 @@ export type Zone = {
 
   // What type of zone this is, for determining luminence
   zoneType: 'room' | 'hallway';
-};
-
-export type Device = {
-  id: string;
-  name: string;
-  class: string;
-  zone: string;
-  capabilities: string[];
-
-  // Whether this device should be turned on/off automatically
-  isAutomatic: boolean;
 };
 
 export class ZoneDB {
@@ -58,14 +51,19 @@ export class ZoneDB {
         : 'room',
     }));
 
-    this._devices = Object.values(await homeyApi.devices.getDevices()).map(
-      (device: unknown) => ({
-        ...(device as Device),
-        isAutomatic: !['fan', 'night light'].some((keyword) =>
-          (device as Device).name.toLowerCase().includes(keyword),
-        ),
-      }),
-    );
+    this._devices = Object.values(
+      (await homeyApi.devices.getDevices()) as Device[],
+    ).map((device) => ({
+      ...device,
+      model: GetDeviceModel(device),
+      isAutomatic: !['fan', 'night light'].some((keyword) =>
+        device.name.toLowerCase().includes(keyword),
+      ),
+      settings: device.settingsObj
+        ? device.settings
+        : { value: device.settings as unknown as string },
+      class: device.virtualClass || device.class, // use virtual class if it exists
+    }));
 
     this._devicesByZone = this._devices.reduce(
       (acc: { [key: string]: Device[] }, device: Device) => {
@@ -107,8 +105,8 @@ export class ZoneDB {
   public getZones(query?: string) {
     return query
       ? (this._zones.filter((zone: Zone) =>
-        zone.name.toLowerCase().includes(query.toLowerCase()),
-      ) as Zone[])
+          zone.name.toLowerCase().includes(query.toLowerCase()),
+        ) as Zone[])
       : this._sortZones(this._zones);
   }
 

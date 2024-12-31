@@ -8,6 +8,7 @@
   "hint": {
     "en": "Dims lights only if the current dim level is lower than the requested one."
   },
+  "highlight": true,
   "args": [
     {
       "type": "autocomplete",

@@ -65,7 +65,7 @@ export class DetermineLuminence extends LoggedFlow<FlowParams, FlowResult> {
 
     this.debug('Sunrise is {sunrise} and sunset is {sunset}', loggedProps);
 
-    let result = 0;
+    let result = 100;
 
     // Determine which mapping to use
     const arg = args['zoneType'];
@@ -80,28 +80,36 @@ export class DetermineLuminence extends LoggedFlow<FlowParams, FlowResult> {
 
     this.debug('Using dim factor {dimFactor}', loggedProps);
 
-    if (currHour > sunrise && currHour < sunrise + 2) {
+    if (currHour > sunrise && currHour <= sunrise + 2) {
       // First two hours of sunrise
       result = mapping[2];
-    } else if (currHour < sunset && currHour > sunset - 2) {
+    } else if (currHour <= sunset && currHour > sunset - 2) {
       // Last two hours before sunset
       result = mapping[4];
-    } else if (currHour > sunrise && currHour < sunset) {
+    } else if (currHour > sunrise && currHour <= sunset) {
       // Daytime
       result = mapping[3];
-    } else if (currHour < sunrise && currHour > sunrise - 2) {
+    } else if (currHour <= sunrise && currHour > sunrise - 2) {
       // Two hours before sunrise
       result = mapping[1];
-    } else if (currHour > sunset && currHour < sunset + 2) {
+    } else if (currHour > sunset && currHour <= sunset + 2) {
       // Two hours after sunset
       result = mapping[5];
     } else if (currHour > sunset + 2) {
       // Late evening
       result = mapping[6];
-    } else if (currHour < sunrise - 2) {
+    } else if (currHour <= sunrise - 2) {
       // Early morning
       result = mapping[0];
+    } else {
+      this.warn(
+        'Unable to determine luminence for {zoneType} at {hour}, defaulting to 100%',
+        loggedProps,
+      );
     }
+
+    loggedProps.mapped = result;
+    this.debug('Mapped luminence is {mapped}', loggedProps);
 
     const finalResult = {
       luminence: Number.parseFloat((result / 100).toFixed(2)),
@@ -109,6 +117,14 @@ export class DetermineLuminence extends LoggedFlow<FlowParams, FlowResult> {
         (result / dimFactor / 100).toFixed(2),
       ),
     };
+
+    if (finalResult.luminence_dimmed < 0.3) {
+      this.warn('{luminence_dimmed} is too low, defaulting to 30%', {
+        ...loggedProps,
+        ...finalResult,
+      });
+      finalResult.luminence_dimmed = 0.3;
+    }
 
     this.info('Luminence for {zoneType} determined as {luminence}', {
       ...loggedProps,

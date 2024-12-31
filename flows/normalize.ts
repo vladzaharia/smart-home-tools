@@ -35,7 +35,7 @@ export class Normalize extends LoggedFlow<LoggedFlowParams, void> {
       lights: devices.map((device) => device.name),
     });
 
-    for (const { id, name, zone, capabilities } of devices) {
+    for (const { id, name, zone, capabilities, model } of devices) {
       const deviceLoggedProps: Record<string, unknown> = {
         ...loggedProps,
         zone,
@@ -61,10 +61,25 @@ export class Normalize extends LoggedFlow<LoggedFlowParams, void> {
         id,
       };
 
-      this.debug('Turning off {light}', deviceLoggingProps);
+      if (capabilities.includes('light_temperature')) {
+        this.debug(
+          'Setting {light} temperature to {temperature}',
+          deviceLoggedProps,
+        );
+        await this._app.api.devices.setCapabilityValue({
+          deviceId: id,
+          capabilityId: 'light_mode',
+          value: 'temperature',
+        });
+        await this._app.api.devices.setCapabilityValue({
+          deviceId: id,
+          capabilityId: 'light_temperature',
+          value: '0.64',
+        });
+      }
 
       if (capabilities.includes('dim')) {
-        this.debug('dimming {light} to 0%', deviceLoggingProps);
+        this.debug('Dimming {light} to 0%', deviceLoggingProps);
         await this._app.api.devices.setCapabilityValue({
           deviceId: id,
           capabilityId: 'dim',
@@ -72,7 +87,7 @@ export class Normalize extends LoggedFlow<LoggedFlowParams, void> {
         });
       }
 
-      this.debug('turning off {light}', deviceLoggingProps);
+      this.debug('Turning off {light}', deviceLoggingProps);
       await this._app.api.devices.setCapabilityValue({
         deviceId: id,
         capabilityId: 'onoff',

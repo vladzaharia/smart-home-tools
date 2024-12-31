@@ -3,7 +3,7 @@
 import { ISmartHomeTools } from '../types/app';
 import { LoggedFlowParams } from '../utils/flows/logged';
 import { ZoneFlow, ZoneFlowParams } from '../utils/flows/zone';
-import { Zone } from '../utils/zones';
+import { Zone } from '../utils/zones/zones';
 import { TurnOff } from './turn-off';
 
 export type FlowParams = ZoneFlowParams & LoggedFlowParams;

@@ -1,6 +1,6 @@
 'use strict';
 
-import { ISmartHomeTools } from '../types/app';
+import { ISmartHomeTools, Source } from '../types/app';
 import { DetermineLuminence } from './determine-luminence';
 import { ZoneFlow, ZoneFlowParams } from '../utils/flows/zone';
 import { LoggedFlowParams } from '../utils/flows/logged';
@@ -11,8 +11,8 @@ export type FlowParams = {
   LoggedFlowParams;
 
 export class SmartDimming extends ZoneFlow<FlowParams, void> {
-  constructor(app: ISmartHomeTools) {
-    super(app, 'smart-dimming');
+  constructor(app: ISmartHomeTools, flowName: Source = 'smart-dimming') {
+    super(app, flowName);
   }
 
   override async _run(args: FlowParams): Promise<void> {
@@ -99,7 +99,7 @@ export class SmartDimming extends ZoneFlow<FlowParams, void> {
     }
 
     this.info(
-      'Finished dimming {numCompleted} lights in {zone} to {dimLevel}, skipped {skipped}',
+      'Finished dimming {completed} in {zone} to {dimLevel}, skipped {skipped}',
       {
         ...loggedProps,
         numCompleted: (loggedProps.completed as string[]).length,

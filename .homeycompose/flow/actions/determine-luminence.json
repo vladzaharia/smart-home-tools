@@ -5,6 +5,7 @@
   "titleFormatted": {
     "en": "Determine luminence value for [[zoneType]]"
   },
+  "highlight": true,
   "args": [
     {
       "type": "dropdown",
@@ -25,7 +26,6 @@
       ]
     }
   ],
-
   "tokens": [
     {
       "name": "luminence",

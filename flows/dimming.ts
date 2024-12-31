@@ -1,7 +1,7 @@
 'use strict';
 
 import { ISmartHomeTools } from '../types/app';
-import { Zone } from '../utils/zones';
+import { Zone } from '../utils/zones/zones';
 import { ZoneFlow, ZoneFlowParams } from '../utils/flows/zone';
 import { LoggedFlow, LoggedFlowParams } from '../utils/flows/logged';
 
